@@ -9,6 +9,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class Transaction {
     private long id;
     private double cost;
