@@ -29,6 +29,14 @@ public class Database {
         throw new TransactionNotFoundException("Transaction not found");
     }
 
+    public static Item addItem(Item item) {
+        item.setId(items.size() + 1);
+
+        items.add(item);
+
+        return item;
+    }
+
     public static List<Item> getItems() {
         return items;
     }

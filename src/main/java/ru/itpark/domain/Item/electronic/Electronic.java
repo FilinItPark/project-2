@@ -10,10 +10,15 @@ import ru.itpark.domain.Item.Item;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class Electronic extends Item {
     private ElectronicItemType type;
     private Integer requiredPowerVoltage;
     private Double power;
+
+    public Electronic(String name, int price, String description, ElectronicItemType type, Integer requiredPowerVoltage, Double power) {
+        super(name, price, description);
+        this.type = type;
+        this.requiredPowerVoltage = requiredPowerVoltage;
+        this.power = power;
+    }
 }
