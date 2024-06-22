@@ -6,160 +6,128 @@ import ru.itpark.domain.Item.clothes.Clothes;
 import ru.itpark.domain.Item.clothes.ClothesType;
 import ru.itpark.domain.Item.electronic.Electronic;
 import ru.itpark.domain.Item.electronic.ElectronicItemType;
+import ru.itpark.domain.Item.product.Product;
+import ru.itpark.domain.Item.product.ProductType;
 import ru.itpark.domain.Type;
 import ru.itpark.infrastructre.Database;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDateTime;
 import java.util.List;
-
-import static jdk.internal.jrtfs.JrtFileAttributeView.AttrID.size;
+import java.util.stream.Stream;
 
 public class Menu {
+    private static final BufferedReader READER = new BufferedReader(new InputStreamReader(System.in));
+
     public static void printMenu() {
         System.out.println("Выберите действие:");
         System.out.println("1. Добавить новую транзакцию");
 
-        try (
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-        ) {
-
-            Integer numberOfMenu = Integer.parseInt(bufferedReader.readLine());
+        try {
+            int numberOfMenu = Integer.parseInt(READER.readLine());
 
             switch (numberOfMenu) {
-                case 1:
-                    System.out.println("Количество переведенных денег:");
-                    Double money = Double.parseDouble(bufferedReader.readLine());
-
-                    System.out.println("Выберите тип операции: SERVICE(услуга) или ITEM(товар)");
-                    String operation = bufferedReader.readLine();
-
-                    Type type = Type.valueOf(operation);
-
-                    List<Item> items = Database.getItems();
-
-                    if (items.isEmpty()) {
-                        System.out.println("Товаров еще нет, желаете ли добавить?");
-                        //TODO: реализовать логику
-
-                        Boolean wantToAdd = bufferedReader.readLine().equalsIgnoreCase("yes");
-
-
-                        if (wantToAdd) {
-                            final AllTypesOfItems[] values = AllTypesOfItems.values();
-                            System.out.println("Выберите тип товара");
-
-                            for (var value : values) {
-                                System.out.println(value.name());
-                            }
-                        }
-
-                        String className = bufferedReader.readLine();
-
-
-                        System.out.println("Введите название товара:  ");
-                        String name = bufferedReader.readLine();
-                        System.out.println("Введите цену:  ");
-                        Integer price = Integer.parseInt(bufferedReader.readLine());
-                        System.out.println("Введите описание товара:");
-                        String description = bufferedReader.readLine();
-
-                        switch (className) {
-                            case "Clothes":
-                                handleClothes(name, price, description, bufferedReader);
-                                break;
-                            case "Electronic":
-                                handleElectronic(name, price, description, bufferedReader);
-                                break;
-                            case "Product":
-                                handleProduct(name, price, description, bufferedReader);
-                                break;
-                        }
-                    }
-
-                    System.out.println("Выберите товары из списка:");
-                    for (var item : Database.getItems()) {
-                        System.out.println(item.getId() + ") " + item.getName());
-                    }
+                case 1 -> handleTransaction();
             }
-
-        } catch (IOException exception) {
-
+        } catch (Exception exception) {
+            System.out.println("Неверный ввод");
+            System.out.println(exception.getMessage());
         }
     }
 
     @SneakyThrows(IOException.class)
-    private static Item handleClothes(String name, Integer price, String description, BufferedReader bufferedReader) {
+    private static void handleTransaction() {
+        System.out.println("Количество переведенных денег:");
+        double money = Double.parseDouble(READER.readLine());
 
-        System.out.println("Введите цвет: ");
-        String color = bufferedReader.readLine();
+        System.out.println("Выберите тип операции: SERVICE(услуга) или ITEM(товар)");
+        Type type = Type.valueOf(READER.readLine());
 
-        System.out.println("Введите размер: ");
-        Integer size = Integer.parseInt(bufferedReader.readLine());
+        List<Item> items = Database.getItems();
 
-        var types = ClothesType.values();
-        for (var type1 : types) {
-            System.out.println(type1);
+        if (items.isEmpty()) {
+            System.out.println("Товаров еще нет, желаете ли добавить? (yes/no)");
+            if (READER.readLine().equalsIgnoreCase("yes")) {
+                addItem();
+            }
         }
-        System.out.println("Выберите тип одежды: ");
-        String typeOfCloth = bufferedReader.readLine().toUpperCase();
-//                                try {
-//                                    type2 = ClothesType.valueOf(typeOfCloth);
-//                                }
-//                                catch (Exception ex) {
-//                                    System.out.println(ex.getMessage());
-//                                }
-        System.out.println("Введите страну производителя: ");
-        String country = bufferedReader.readLine();
+        selectAndProccesItem(items);
+    }
 
-        System.out.println("Введите сезон: ");
-        String season = bufferedReader.readLine();
+    private static void selectAndProccesItem(List<Item> items) {
+        items.forEach(item -> System.out.println(
+                String.format(
+                        "%d ) %s",
+                        item.getId(),
+                        item.getName()
+                )
+        ));
+    }
 
-        System.out.println("Введите материал: ");
-        String material = bufferedReader.readLine();
+    @SneakyThrows(IOException.class)
+    public static void addItem() {
+        System.out.println("Выберите тип товара");
+        Stream.of(AllTypesOfItems.values()).forEach(type -> System.out.println(type.name()));
 
-        System.out.println("Введите пол: ");
-        String sex = bufferedReader.readLine();
+        String className = READER.readLine();
 
-        Clothes cloth = new Clothes(name, price, description, color, size, ClothesType.valueOf(typeOfCloth), country, season, material, sex);
+        System.out.println("Введите название товара:  ");
+        String name = READER.readLine();
 
-        Database.addItem(cloth);
+        System.out.println("Введите цену:  ");
+        Integer price = Integer.parseInt(READER.readLine());
 
-        return cloth;
+        System.out.println("Введите описание товара:");
+        String description = READER.readLine();
+
+        switch (className) {
+            case "Clothes" -> handleClothes(name, price, description);
+            case "Electronic" -> handleElectronic(name, price, description);
+            case "Product" -> handleProduct(name, price, description);
+        }
+    }
+
+
+    @SneakyThrows(IOException.class)
+    private static void handleClothes(String name, Integer price, String description) {
+        System.out.println("Введите цвет, размер, тип одежды, страну производителя, сезон, материал и пол");
+
+        var clothes = new Clothes(name, price, description,
+                READER.readLine(), // color
+                Integer.parseInt(READER.readLine()),  // size
+                ClothesType.valueOf(READER.readLine().toUpperCase()),   // clothes type
+                READER.readLine(),  // country
+                READER.readLine(),   // season
+                READER.readLine(),    // material
+                READER.readLine()    // sex
+        );
+
+        Database.addItem(clothes);
     }
 
     @SneakyThrows
-    private static Item handleElectronic(String name, Integer price, String description, BufferedReader bufferedReader) {
-
-        var types = ElectronicItemType.values();
-        System.out.println("Выберите тип электроники: ");
-        for (var type1 : types) {
-            System.out.println(type1);
-        }
-
-        String typeOfElectronic = bufferedReader.readLine().toUpperCase();
-        ElectronicItemType typeOfElectronicEnumValue = null;
-        try {
-            typeOfElectronicEnumValue = ElectronicItemType.valueOf(typeOfElectronic);
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }
-        System.out.println("Введите необходимое напряжение: ");
-        Integer requiredPowerVoltage = Integer.parseInt(bufferedReader.readLine());
-
-        System.out.println("Введите мощность: ");
-        Double power = Double.parseDouble(bufferedReader.readLine());
-
-
-        var electronic = new Electronic(name, price, description, typeOfElectronicEnumValue, requiredPowerVoltage, power);
+    private static void handleElectronic(String name, Integer price, String description) {
+        System.out.println("Выберите тип электроники, введите необходимое напряжение, мощность");
+        var electronic = new Electronic(name, price, description,
+                ElectronicItemType.valueOf(READER.readLine().toUpperCase()),  // type
+                Integer.parseInt(READER.readLine()),   // voltage
+                Double.parseDouble(READER.readLine())   // power
+        );
 
         Database.addItem(electronic);
-
-        return electronic;
     }
 
-    private static Item handleProduct(String name, Integer price, String description, BufferedReader bufferedReader) {
+    @SneakyThrows(IOException.class)
+    private static void handleProduct(String name, Integer price, String description) {
+        System.out.println("Введите рейтинг товара, его тип");
+        var product = new Product(name, price, description,
+                Double.parseDouble(READER.readLine()),    // rating
+                ProductType.valueOf(READER.readLine().toUpperCase()),    // type
+                LocalDateTime.now()
+        );
 
+        Database.addItem(product);
     }
 }
