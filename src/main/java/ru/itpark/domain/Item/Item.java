@@ -3,11 +3,15 @@ package ru.itpark.domain.Item;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+
+import java.io.Serializable;
 
 @Getter
 @Setter
-
-public abstract class Item {
+@ToString
+public abstract class Item implements Serializable {
+    private static final long serialVersionUID = 312312123132L;
     protected long id;
 
     protected String name;
