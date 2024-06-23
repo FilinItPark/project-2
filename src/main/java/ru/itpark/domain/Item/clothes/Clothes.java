@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.itpark.domain.Item.Item;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 public class Clothes extends Item {
@@ -17,8 +19,8 @@ public class Clothes extends Item {
     private String material;
     private String sex;
 
-    public Clothes(String name, int price, String description, String color, Integer size, ClothesType type, String country, String season, String material, String sex) {
-        super(name, price, description);
+    public Clothes(String name, int price, String description, String color, Integer size, ClothesType type, String country, String season, String material, String sex, LocalDateTime now) {
+        super(name, price, now, description);
         this.color = color;
         this.size = size;
         this.type = type;

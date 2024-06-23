@@ -13,12 +13,10 @@ import java.time.LocalDateTime;
 public class Product extends Item {
     private double rating;
     private ProductType type;
-    private LocalDateTime createdAt;
 
     public Product(String name, int price, String description, double rating, ProductType type, LocalDateTime createdAt) {
-        super(name, price, description);
+        super(name, price, createdAt, description);
         this.rating = rating;
         this.type = type;
-        this.createdAt = createdAt;
     }
 }

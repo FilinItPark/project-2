@@ -1,11 +1,10 @@
 package ru.itpark.domain.Item.electronic;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.itpark.domain.Item.Item;
 
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -15,8 +14,8 @@ public class Electronic extends Item {
     private Integer requiredPowerVoltage;
     private Double power;
 
-    public Electronic(String name, int price, String description, ElectronicItemType type, Integer requiredPowerVoltage, Double power) {
-        super(name, price, description);
+    public Electronic(String name, int price, String description, ElectronicItemType type, Integer requiredPowerVoltage, Double power, LocalDateTime now) {
+        super(name, price, now, description);
         this.type = type;
         this.requiredPowerVoltage = requiredPowerVoltage;
         this.power = power;

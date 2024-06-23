@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -17,12 +18,14 @@ public abstract class Item implements Serializable {
     protected String name;
 
     protected int price;
+    private LocalDateTime createdAt;
 
     protected String description;
 
-    public Item(String name, int price, String description) {
+    public Item(String name, int price, LocalDateTime createdAt, String description) {
         this.name = name;
         this.price = price;
+        this.createdAt = createdAt;
         this.description = description;
     }
 }

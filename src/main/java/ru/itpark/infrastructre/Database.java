@@ -6,9 +6,11 @@ import ru.itpark.exceptions.TransactionNotFoundException;
 
 import javax.xml.crypto.Data;
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Database {
     private static List<Transaction> transactions = new ArrayList<>();
@@ -59,7 +61,7 @@ public class Database {
         throw new TransactionNotFoundException("Transaction not found");
     }
 
-    public static List<Item> searchItems(List<Integer> ids) {
+    public static List<Item> searchItems(List<Long> ids) {
         return items.stream()
                 .filter(currentItem -> ids.contains(currentItem.getId()))
                 .toList();
@@ -75,6 +77,56 @@ public class Database {
 
     public static List<Item> getItems() {
         return items;
+    }
+
+    public static Map<String, Double> makeFinanceReport() {
+        return transactions
+                .stream()
+                .flatMap(transaction -> transaction.getItems().stream())
+                .collect(Collectors.groupingBy(
+                        Item::getName,
+                        Collectors.summingDouble(Item::getPrice)
+                ));
+
+
+    }
+
+    public static Map<String, Double> makeFinanceReportInPeriod(LocalDateTime startDate, LocalDateTime endDate) {
+        return transactions
+                .stream()
+                .flatMap(transaction -> transaction.getItems().stream())
+                .filter(currentItem -> currentItem.getCreatedAt().isAfter(startDate) && currentItem.getCreatedAt().isBefore(endDate))
+                .collect(Collectors.groupingBy(
+                        Item::getName,
+                        Collectors.summingDouble(Item::getPrice)
+                ));
+
+    }
+
+
+    public static Map<String, Double> makeFinanceReportIncomes() {
+        return transactions
+                .stream()
+                .flatMap(transaction -> transaction.getItems().stream())
+                .filter(currentItem -> currentItem.getPrice() > 0)
+                .collect(Collectors.groupingBy(
+                        Item::getName,
+                        Collectors.summingDouble(Item::getPrice)
+                ));
+
+    }
+
+    public static Map<String, Double> makeFinanceReportWithTargets(List<Item> items) {
+        return transactions
+                .stream()
+                .flatMap(transaction -> transaction.getItems().stream())
+                .filter(currentItem -> currentItem.getPrice() > 0)
+                .filter(items::contains)
+                .collect(Collectors.groupingBy(
+                        Item::getName,
+                        Collectors.summingDouble(Item::getPrice)
+                ));
+
     }
 
 }
